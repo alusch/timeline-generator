@@ -51,8 +51,8 @@ def get_timeline(data, start=None, end=None,
     vlines = milestones[milestones.vline == True]
     plots = milestones[milestones.marker == True]
     for index, row in plots.iterrows():
-        ax.plot(row.start_datetime, row.height, row.markerfmt,
-                color=row.color, markerfacecolor=row.color)
+        ax.plot(row.start_datetime, row.height, marker=row.markerfmt,
+                color=row.color, markerfacecolor=row.color, markeredgewidth=row.markeredgewidth)
     ax.vlines(vlines.start_datetime, 0, vlines.height,
               color=vlines.color, linewidth=0.5)
     data.apply(lambda row: annotate(ax, row), axis=1)
@@ -98,6 +98,7 @@ def set_defaults(options):
         'vline': True,
         'marker': True,
         'markerfmt': 'o',
+        'markeredgewidth': 0,
         'placement':'right'
     }
 
