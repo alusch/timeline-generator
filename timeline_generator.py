@@ -77,6 +77,7 @@ def get_timeline(data, start=None, end=None,
         ax.xaxis.set_minor_locator(mdates.YearLocator())
     else:
         print("invalid granularity")
+    ax.xaxis.grid(True, color='#eeeeee')
     ax.tick_params(axis="x", labelsize=8)
     fig.autofmt_xdate()
     if (filename):
