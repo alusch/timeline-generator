@@ -67,6 +67,9 @@ def get_timeline(data, start=None, end=None,
         ax.xaxis.set_major_locator(mdates.WeekLocator(interval=interval)) 
     elif granularity == 'months':
         ax.xaxis.set_major_locator(mdates.MonthLocator(interval=interval)) 
+    elif granularity == 'years':
+        ax.xaxis.set_major_locator(mdates.YearLocator(base=interval))
+        ax.xaxis.set_minor_locator(mdates.YearLocator())
     else:
         print("invalid granularity")
     ax.tick_params(axis="x", labelsize=8)
