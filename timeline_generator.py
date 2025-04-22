@@ -1,7 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.markers as mmarkers
+import matplotlib.text as mtext
 import textwrap
+
+SYMBOL_FONT = mtext.FontProperties(family="Segoe UI Symbol")
+
 
 def get_timeline(data, start=None, end=None,
                  granularity='hours', interval=24, ylim=None, dateformat='%a %b %d', fig_height=5, fig_width=14, filename=None):
@@ -95,9 +100,22 @@ def set_defaults(options):
         'markerfmt': 'o',
         'placement':'right'
     }
-    result = defaults
-    for option in options:
-        result[option] = options[option]
+
+    base_options = {
+        'range': {
+            'x_offset': 0,
+            'color': 'lightgray',
+            'text_wrap': 300,
+        },
+        'emigrated': {
+            'placement': 'left',
+            'vline': False,
+            'markerfmt': mmarkers.MarkerStyle(mtext.TextPath((-5, -3), '⛴', prop=SYMBOL_FONT)).scaled(2, 2),
+        },
+    }
+
+    result = defaults | base_options.get(options.get('base'), {}) | options
+
     return result
 
 
