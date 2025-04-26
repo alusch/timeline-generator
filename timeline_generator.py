@@ -40,7 +40,7 @@ def get_timeline(data, start=None, end=None,
         (pd.notnull(data.end_datetime) & (data.end_datetime >= start_datetime) & (data.end_datetime <= end_datetime))
     ].height
 
-    min_height = valid_heights.min() - 0.5
+    min_height = min(0, valid_heights.min()) - 0.5
     max_height = valid_heights.max() + 0.5
 
     if not fig_height:
@@ -80,7 +80,6 @@ def get_timeline(data, start=None, end=None,
     ax.xaxis.set_major_locator(get_locator(granularity, interval))
     if (minor_interval):
         ax.xaxis.set_minor_locator(get_locator(granularity, minor_interval))
-    ax.xaxis.grid(True, color='#eeeeee')
 
     if rotate_labels:
         fig.autofmt_xdate()

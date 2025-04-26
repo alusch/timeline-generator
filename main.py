@@ -1,5 +1,6 @@
 import argparse
 import ast
+import matplotlib
 import pathlib
 
 import pandas as pd
@@ -14,6 +15,16 @@ def main():
 
     df = pd.read_csv(args.in_file)
     df['options'] = df['options'].apply(ast.literal_eval)
+
+    styles = {
+        'axes.grid': True,
+        'axes.grid.which': 'major',
+        'grid.color': '#eeeeee',
+
+        'font.family': ['Metropolis', 'Segoe UI Symbol'],
+    }
+    matplotlib.rcParams.update(styles)
+
     timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False)
 
 
