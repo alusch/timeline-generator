@@ -9,7 +9,9 @@ SYMBOL_FONT = mtext.FontProperties(family="Segoe UI Symbol")
 
 
 def get_timeline(data, start=None, end=None,
-                 granularity='hours', interval=24, ylim=None, dateformat='%a %b %d', fig_height=5, fig_width=14, filename=None):
+                 granularity='hours', interval=24, minor_interval=None, dateformat='%a %b %d',
+                 fig_height=None, fig_width=None, inches_per_xtick=1.5, inches_per_ytick=1.5,
+                 rotate_labels=True, filename=None):
 
     data['start_datetime'] = pd.to_datetime(data.start, format='mixed')
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
@@ -17,25 +19,36 @@ def get_timeline(data, start=None, end=None,
     offset_args = {}
     offset_args[granularity] = interval
     if not start:
-        start_datetime = min(data.start_datetime) - \
-            pd.DateOffset(**offset_args)
+        start_datetime = data.start_datetime.min() - pd.DateOffset(**offset_args)
     else:
         start_datetime = pd.to_datetime(start)
     if not end:
-        end_datetime = max(max(data.start_datetime), max(
-            data.end_datetime)) + pd.DateOffset(**offset_args)
+        end_datetime = max(data.start_datetime.max(), data.end_datetime.max()) + pd.DateOffset(**offset_args)
     else:
         end_datetime = pd.to_datetime(end)
 
+    if not fig_width:
+        start_num = mdates.date2num(start_datetime)
+        end_num = mdates.date2num(end_datetime)
+        major_tick_size = mdates.RRuleLocator.get_unit_generic(get_freq(granularity)) * interval
+
+        num_intervals = (end_num - start_num) / major_tick_size
+        fig_width = num_intervals * inches_per_xtick
+
+    valid_heights = data[
+        ((data.start_datetime >= start_datetime) & (data.start_datetime <= end_datetime)) | 
+        (pd.notnull(data.end_datetime) & (data.end_datetime >= start_datetime) & (data.end_datetime <= end_datetime))
+    ].height
+
+    min_height = valid_heights.min() - 0.5
+    max_height = valid_heights.max() + 0.5
+
+    if not fig_height:
+        fig_height = (max_height - min_height) * inches_per_ytick
+
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=300)
-    ax.set_xlim([start_datetime, end_datetime])
-    if not ylim:
-        ax.set_ylim(0,1+data[
-            ((data.start_datetime >= start_datetime) & (data.start_datetime <= end_datetime)) | 
-            (pd.notnull(data.end_datetime) & (data.end_datetime >= start_datetime) & (data.end_datetime <= end_datetime))
-            ].height.max())
-    else:
-        ax.set_ylim(0,ylim)
+    ax.set_xlim(start_datetime, end_datetime)
+    ax.set_ylim(min_height, max_height)
 
     data['options'] = data.apply(lambda row: set_defaults(row.options), axis=1)
     data_options = pd.DataFrame([x for x in data.options])
@@ -64,25 +77,51 @@ def get_timeline(data, start=None, end=None,
     ax.get_yaxis().set_ticks([])
     dtFmt = mdates.DateFormatter(dateformat)  # define the formatting
     ax.xaxis.set_major_formatter(dtFmt)
-    if granularity == 'minutes':
-        ax.xaxis.set_major_locator(mdates.MinuteLocator(interval=interval))
-    elif granularity == 'hours':
-        ax.xaxis.set_major_locator(mdates.HourLocator(interval=interval))
-    elif granularity == 'weeks':
-        ax.xaxis.set_major_locator(mdates.WeekLocator(interval=interval)) 
-    elif granularity == 'months':
-        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=interval)) 
-    elif granularity == 'years':
-        ax.xaxis.set_major_locator(mdates.YearLocator(base=interval))
-        ax.xaxis.set_minor_locator(mdates.YearLocator())
-    else:
-        print("invalid granularity")
+    ax.xaxis.set_major_locator(get_locator(granularity, interval))
+    if (minor_interval):
+        ax.xaxis.set_minor_locator(get_locator(granularity, minor_interval))
     ax.xaxis.grid(True, color='#eeeeee')
-    ax.tick_params(axis="x", labelsize=8)
-    fig.autofmt_xdate()
+
+    if rotate_labels:
+        fig.autofmt_xdate()
+
+    fig.tight_layout(pad = 0)
+
     if (filename):
-        plt.savefig(filename, bbox_inches='tight')
+        plt.savefig(filename)
     return ax
+
+def get_freq(granularity):
+    if granularity == 'minutes':
+        return mdates.MINUTELY
+    elif granularity == 'hours':
+        return mdates.HOURLY
+    elif granularity == 'days':
+        return mdates.DAILY
+    elif granularity == 'weeks':
+        return mdates.WEEKLY
+    elif granularity == 'months':
+        return mdates.MONTHLY
+    elif granularity == 'years':
+        return mdates.YEARLY
+    else:
+        raise "invalid granularity"
+
+def get_locator(granularity, interval):
+    if granularity == 'minutes':
+        return mdates.MinuteLocator(interval=interval)
+    elif granularity == 'hours':
+        return mdates.HourLocator(interval=interval)
+    elif granularity == 'days':
+        return mdates.DayLocator(interval=interval)
+    elif granularity == 'weeks':
+        return mdates.RRuleLocator(mdates.rrulewrapper(mdates.WEEKLY, interval=interval))
+    elif granularity == 'months':
+        return mdates.MonthLocator(interval=interval)
+    elif granularity == 'years':
+        return mdates.YearLocator(base=interval)
+    else:
+        raise "invalid granularity"
 
 def set_defaults(options):
     defaults = {

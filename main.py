@@ -14,7 +14,7 @@ def main():
 
     df = pd.read_csv(args.in_file)
     df['options'] = df['options'].apply(ast.literal_eval)
-    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y')
+    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False)
 
 
 if __name__ == "__main__":
