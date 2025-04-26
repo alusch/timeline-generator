@@ -22,6 +22,7 @@ def main():
         'grid.color': '#eeeeee',
 
         'font.family': ['Metropolis', 'Segoe UI Symbol'],
+        'font.weight': 'medium',
     }
     matplotlib.rcParams.update(styles)
 

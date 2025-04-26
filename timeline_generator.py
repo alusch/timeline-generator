@@ -147,6 +147,16 @@ def set_defaults(options):
             'color': 'lightgray',
             'text_wrap': 300,
         },
+        'range_annotated': {
+            'color': 'lightgray',
+            'text_wrap': 300,
+            'annotation_anchor': 'middle',
+            'arrowprops': {
+                'arrowstyle': '->',
+                'connectionstyle': 'arc3,rad=0.1',
+                'shrinkB': 0
+            }
+        },
         'emigrated': {
             'placement': 'left',
             'vline': False,
@@ -166,6 +176,11 @@ def annotate(ax, row):
         anchor = row['start_datetime']
     elif row['annotation_anchor'] == 'right':
         anchor = row['end_datetime']
+    elif row['annotation_anchor'] == 'middle':
+        start = mdates.date2num(row['start_datetime'])
+        end = mdates.date2num(row['end_datetime'])
+        avg = (start + end) / 2
+        anchor = mdates.num2date(avg)
     elif row['annotation_anchor'] == 'start':
         anchor = mdates.num2date(ax.get_xlim()[0])
     elif row['annotation_anchor'] == 'end':
