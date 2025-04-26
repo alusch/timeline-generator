@@ -11,7 +11,7 @@ SYMBOL_FONT = mtext.FontProperties(family="Segoe UI Symbol")
 def get_timeline(data, start=None, end=None,
                  granularity='hours', interval=24, minor_interval=None, dateformat='%a %b %d',
                  fig_height=None, fig_width=None, inches_per_xtick=1.5, inches_per_ytick=1.5,
-                 rotate_labels=True, filename=None):
+                 rotate_labels=True, capstyle='round', filename=None):
 
     data['start_datetime'] = pd.to_datetime(data.start, format='mixed')
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
@@ -58,7 +58,7 @@ def get_timeline(data, start=None, end=None,
     spans = data[data.end_datetime.notnull()]
     if spans.shape[0] > 0:
         ax.hlines(spans.height, spans.start_datetime, spans.end_datetime,
-                  linewidth=spans.linewidth, capstyle='round', alpha=spans.alpha,
+                  linewidth=spans.linewidth, capstyle=capstyle, alpha=spans.alpha,
                   color=spans.color)
     milestones = data[data.end_datetime.isnull()]
     vlines = milestones[milestones.vline == True]
@@ -68,7 +68,7 @@ def get_timeline(data, start=None, end=None,
                 color=row.color, markerfacecolor=row.color, markeredgewidth=row.markeredgewidth)
     ax.vlines(vlines.start_datetime, 0, vlines.height,
               color=vlines.color, linewidth=0.5)
-    data.apply(lambda row: annotate(ax, row), axis=1)
+    data.apply(lambda row: annotate(ax, row, inches_per_xtick, inches_per_ytick), axis=1)
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -104,7 +104,7 @@ def get_freq(granularity):
     elif granularity == 'years':
         return mdates.YEARLY
     else:
-        raise "invalid granularity"
+        raise ValueError("invalid granularity " + granularity)
 
 def get_locator(granularity, interval):
     if granularity == 'minutes':
@@ -120,13 +120,15 @@ def get_locator(granularity, interval):
     elif granularity == 'years':
         return mdates.YearLocator(base=interval)
     else:
-        raise "invalid granularity"
+        raise ValueError("invalid granularity " + granularity)
 
 def set_defaults(options):
     defaults = {
         'text_wrap': 50,
         'x_offset': 10,
-        'y_offset': 5,
+        'x_offset_unit': 'points',
+        'y_offset': 4,
+        'y_offset_unit': 'points',
         'arrowprops': None,
         'annotation_anchor': 'left',
         'horizontalalignment': 'left',
@@ -143,7 +145,7 @@ def set_defaults(options):
 
     base_options = {
         'range': {
-            'x_offset': 0,
+            'x_offset': 7,
             'color': 'lightgray',
             'text_wrap': 300,
         },
@@ -151,6 +153,8 @@ def set_defaults(options):
             'color': 'lightgray',
             'text_wrap': 300,
             'annotation_anchor': 'middle',
+            'x_offset_unit': 'xticks',
+            'y_offset_unit': 'yticks',
             'arrowprops': {
                 'arrowstyle': '->',
                 'connectionstyle': 'arc3,rad=0.1',
@@ -168,8 +172,19 @@ def set_defaults(options):
 
     return result
 
+def convert_to_points(value, unit, inches_per_xtick, inches_per_ytick):
+    if unit == 'points':
+        return value
+    elif unit == 'inches':
+        return value * 72
+    elif unit == 'xticks':
+        return value * inches_per_xtick * 72
+    elif unit == 'yticks':
+        return value * inches_per_ytick * 72
+    else:
+        raise ValueError("unknown unit " + unit)
 
-def annotate(ax, row):
+def annotate(ax, row, inches_per_xtick, inches_per_ytick):
     description = "\n".join(textwrap.wrap(
         row.description, width=row['text_wrap']))
     if row['annotation_anchor'] == 'left':
@@ -192,7 +207,10 @@ def annotate(ax, row):
         row['arrowprops'] = None
     ax.annotate(
         description, xy=(anchor, row.height),
-        xytext=(row.x_offset, row.y_offset), 
+        xytext=(
+            convert_to_points(row.x_offset, row.x_offset_unit, inches_per_xtick, inches_per_ytick),
+            convert_to_points(row.y_offset, row.y_offset_unit, inches_per_xtick, inches_per_ytick)
+        ),
         textcoords="offset points",
         horizontalalignment=row.horizontalalignment,
         verticalalignment="top",

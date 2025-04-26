@@ -23,10 +23,12 @@ def main():
 
         'font.family': ['Metropolis', 'Segoe UI Symbol'],
         'font.weight': 'medium',
+
+        'xtick.labelsize': 16
     }
     matplotlib.rcParams.update(styles)
 
-    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False)
+    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt')
 
 
 if __name__ == "__main__":
