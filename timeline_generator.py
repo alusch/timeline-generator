@@ -84,6 +84,8 @@ def get_timeline(data, start=None, end=None,
     if rotate_labels:
         fig.autofmt_xdate()
 
+    # TODO: How do we want to handle?
+    ax.xaxis.set_in_layout(False)
     fig.tight_layout(pad = 0)
 
     if (filename):
