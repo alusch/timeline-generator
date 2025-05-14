@@ -1,17 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.markers as mmarkers
-import matplotlib.text as mtext
 import textwrap
-
-SYMBOL_FONT = mtext.FontProperties(family="Segoe UI Symbol")
-
 
 def get_timeline(data, start=None, end=None,
                  granularity='hours', interval=24, minor_interval=None, dateformat='%a %b %d',
                  fig_height=None, fig_width=None, inches_per_xtick=1.5, inches_per_ytick=1.5,
-                 rotate_labels=True, capstyle='round', filename=None):
+                 rotate_labels=True, capstyle='round', default_style=None, styles=None, filename=None):
 
     data['start_datetime'] = pd.to_datetime(data.start, format='mixed')
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
@@ -50,7 +45,33 @@ def get_timeline(data, start=None, end=None,
     ax.set_xlim(start_datetime, end_datetime)
     ax.set_ylim(min_height, max_height)
 
-    data['options'] = data.apply(lambda row: set_defaults(row.options), axis=1)
+    defaults = {
+        'text_wrap': 50,
+        'x_offset': 10,
+        'x_offset_unit': 'points',
+        'y_offset': 4,
+        'y_offset_unit': 'points',
+        'arrowprops': None,
+        'annotation_anchor': 'left',
+        'horizontalalignment': 'left',
+        'color': 'darkblue',
+        'textcolor': 'black',
+        'alpha': 1,
+        'linewidth': 20,
+        'vline': True,
+        'marker': True,
+        'markerfmt': 'o',
+        'markeredgewidth': 0,
+        'placement':'right'
+    }
+
+    if default_style:
+        defaults = defaults | default_style
+
+    if not styles:
+        styles = {}
+
+    data['options'] = data.apply(lambda row: compute_options(defaults, styles, row.options), axis=1)
     data_options = pd.DataFrame([x for x in data.options])
     data = data.combine_first(data_options)
     data = data.where(pd.notnull(data), None)
@@ -124,65 +145,15 @@ def get_locator(granularity, interval):
     else:
         raise ValueError("invalid granularity " + granularity)
 
-def set_defaults(options):
-    defaults = {
-        'text_wrap': 50,
-        'x_offset': 10,
-        'x_offset_unit': 'points',
-        'y_offset': 4,
-        'y_offset_unit': 'points',
-        'arrowprops': None,
-        'annotation_anchor': 'left',
-        'horizontalalignment': 'left',
-        'color': 'darkblue',
-        'textcolor': 'black',
-        'alpha': 1,
-        'linewidth': 20,
-        'vline': True,
-        'marker': True,
-        'markerfmt': 'o',
-        'markeredgewidth': 0,
-        'placement':'right'
-    }
-
-    ship_marker = mmarkers.MarkerStyle(mtext.TextPath((-5, -3), '⛴', prop=SYMBOL_FONT)).scaled(2, 2)
-
-    base_options = {
-        'range': {
-            'x_offset': 7,
-            'color': 'lightgray',
-            'text_wrap': 300,
-        },
-        'range_start_marker': {
-            'x_offset': 10,
-            'color': 'lightgray',
-            'text_wrap': 300,
-        },
-        'range_annotated': {
-            'color': 'lightgray',
-            'text_wrap': 300,
-            'annotation_anchor': 'middle',
-            'x_offset_unit': 'xticks',
-            'y_offset_unit': 'yticks',
-            'arrowprops': {
-                'arrowstyle': '->',
-                'connectionstyle': 'arc3,rad=0.1',
-                'shrinkB': 0
-            }
-        },
-        'ship': {
-            'markerfmt': ship_marker,
-        },
-        'emigrated': {
-            'placement': 'left',
-            'vline': False,
-            'markerfmt': ship_marker,
-        },
-    }
-
-    result = defaults | base_options.get(options.get('base'), {}) | options
-
-    return result
+def compute_options(defaults, base_options, specified):
+    final_options = defaults
+    base = specified.get('base')
+    if isinstance(base, list):
+        for b in base:
+            final_options = compute_options(final_options, base_options, base_options.get(b, {}))
+    elif base is not None:
+        final_options = compute_options(final_options, base_options, base_options.get(base, {}))
+    return final_options | specified
 
 def convert_to_points(value, unit, inches_per_xtick, inches_per_ytick):
     if unit == 'points':
