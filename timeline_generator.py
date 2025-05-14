@@ -6,7 +6,8 @@ import textwrap
 def get_timeline(data, start=None, end=None,
                  granularity='hours', interval=24, minor_interval=None, dateformat='%a %b %d',
                  fig_height=None, fig_width=None, inches_per_xtick=1.5, inches_per_ytick=1.5,
-                 rotate_labels=True, capstyle='round', default_style=None, styles=None, filename=None):
+                 rotate_labels=True, capstyle='round', default_style=None, styles=None,
+                 hide_partially_visible_labels=False, filename=None):
 
     data['start_datetime'] = pd.to_datetime(data.start, format='mixed')
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
@@ -105,9 +106,17 @@ def get_timeline(data, start=None, end=None,
     if rotate_labels:
         fig.autofmt_xdate()
 
-    # TODO: How do we want to handle?
+    # Don't include axis tick labels in the size calculation so our automatic figure sizing always works
     ax.xaxis.set_in_layout(False)
     fig.tight_layout(pad = 0)
+
+    # If desired, hide labels that were partially clipped by the above
+    if hide_partially_visible_labels:
+        axes_bbox = ax.get_window_extent()
+        for label in ax.get_xticklabels():
+            label_bbox = label.get_window_extent()
+            if label_bbox.x0 < axes_bbox.x0 or label_bbox.x1 > axes_bbox.x1:
+                label.set_visible(False)
 
     if (filename):
         plt.savefig(filename)
@@ -188,7 +197,7 @@ def annotate(ax, row, inches_per_xtick, inches_per_ytick):
         row['x_offset'] = -10
     if pd.isna(row['arrowprops']):
         row['arrowprops'] = None
-    ax.annotate(
+    annotation = ax.annotate(
         description, xy=(anchor, row.height),
         xytext=(
             convert_to_points(row.x_offset, row.x_offset_unit, inches_per_xtick, inches_per_ytick),
@@ -200,3 +209,6 @@ def annotate(ax, row, inches_per_xtick, inches_per_ytick):
         color=row.textcolor,
         arrowprops=row.arrowprops
     )
+
+    # Don't include annotations in the size calculation so our automatic figure sizing always works
+    annotation.set_in_layout(False)
