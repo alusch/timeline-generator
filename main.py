@@ -28,7 +28,7 @@ def main():
     }
     matplotlib.rcParams.update(styles)
 
-    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt')
+    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt', inches_per_ytick=1)
 
 
 if __name__ == "__main__":

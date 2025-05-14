@@ -17,7 +17,7 @@ def get_timeline(data, start=None, end=None,
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
 
     offset_args = {}
-    offset_args[granularity] = interval
+    offset_args[granularity] = 3
     if not start:
         start_datetime = data.start_datetime.min() - pd.DateOffset(**offset_args)
     else:
@@ -145,9 +145,16 @@ def set_defaults(options):
         'placement':'right'
     }
 
+    ship_marker = mmarkers.MarkerStyle(mtext.TextPath((-5, -3), '⛴', prop=SYMBOL_FONT)).scaled(2, 2)
+
     base_options = {
         'range': {
             'x_offset': 7,
+            'color': 'lightgray',
+            'text_wrap': 300,
+        },
+        'range_start_marker': {
+            'x_offset': 10,
             'color': 'lightgray',
             'text_wrap': 300,
         },
@@ -163,10 +170,13 @@ def set_defaults(options):
                 'shrinkB': 0
             }
         },
+        'ship': {
+            'markerfmt': ship_marker,
+        },
         'emigrated': {
             'placement': 'left',
             'vline': False,
-            'markerfmt': mmarkers.MarkerStyle(mtext.TextPath((-5, -3), '⛴', prop=SYMBOL_FONT)).scaled(2, 2),
+            'markerfmt': ship_marker,
         },
     }
 
