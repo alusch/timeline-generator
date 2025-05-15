@@ -64,7 +64,7 @@ def main():
         },
     }
 
-    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt', inches_per_ytick=1, default_style=defaults, styles=base_options)
+    timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt', inches_per_ytick=1, default_style=defaults, styles=base_options, hide_partially_visible_labels=True)
 
 
 if __name__ == "__main__":

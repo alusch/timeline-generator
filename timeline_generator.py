@@ -13,7 +13,7 @@ def get_timeline(data, start=None, end=None,
     data['end_datetime'] = pd.to_datetime(data.end, format='mixed')
 
     offset_args = {}
-    offset_args[granularity] = 3
+    offset_args[granularity] = interval
     if not start:
         start_datetime = data.start_datetime.min() - pd.DateOffset(**offset_args)
     else:
