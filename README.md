@@ -1,6 +1,6 @@
 # Timeline-Generator
 
-Create visual timelines for post-incident investigations and other purposes.
+Create visual timelines for family history and other purposes.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ I played with both [mermaid.js](https://mermaid-js.github.io/mermaid/#/) and [Pl
 
 After using Excel to create a few timelines, I decided to start using matplotlib because it makes a lot more sense to do this in code.
 
-![example timeline](demo/timeline-1.png)
+![example timeline](TestTimeline.png)
 
 ## Features
 
@@ -21,6 +21,7 @@ After using Excel to create a few timelines, I decided to start using matplotlib
 - Several customization options
 - Use any date/time format understood by [pandas.to_datetime](https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html)
 - Save timelines to PNG, SVG, PDF (type detected by output filename)
+- Styles (with inheritance)
 
 ## Prerequisites
 
@@ -31,3 +32,9 @@ After using Excel to create a few timelines, I decided to start using matplotlib
 ## Using
 
 See [This jupyter notebook for help and examples](demo/timeline.ipynb)
+
+New features in this fork yet to be documented, but see [main.py](main.py) for the family-history-oriented driver script, and [TestTimeline.csv](TestTimeline.csv) for the data that generated the above example:
+
+```sh
+python main.py TestTimeline.csv TestTimeline.png
+```

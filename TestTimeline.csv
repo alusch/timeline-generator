@@ -1,0 +1,10 @@
+start,end,description,height,options
+1848-02-01,1849-07-01,German revolutions of 1848–1849,1.5,"{'base': 'range_annotated', 'x_offset': -0.5, 'y_offset': 0.4}"
+1850-01-01,,German Confederation re-established,-0.5,"{'placement':'left', 'text_wrap': 20,}"
+1849-07-13,1871-01-01,Georg Düsseldorf (1849–1927),0.5,"{'base': ['range', 'color1']}"
+1871-01-01,,1871,0.5,"{'base': 'emigrated'}"
+1853-06-21,1875-01-01,Elsa Müller (1853–1925),1,"{'base': ['range', 'color2']}"
+1875-01-01,,1875,1,"{'base': 'emigrated'}"
+1866-06-01,,Seven Weeks' War ends German Confederation,-0.5,"{'placement':'left'}"
+1867-07-01,1870-12-01, North German Confederation (state of Kingdom of Prussia),1.5,"{'base': 'range_annotated', 'x_offset': -1.6, 'y_offset': 0.4}"
+1871-01-01,,Southern states join and German Empire created,-1,"{'placement':'left'}"
