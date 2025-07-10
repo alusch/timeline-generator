@@ -89,7 +89,7 @@ def get_timeline(data, start=None, end=None,
         ax.plot(row.start_datetime, row.height, marker=row.markerfmt,
                 color=row.color, markerfacecolor=row.color, markeredgewidth=row.markeredgewidth)
     ax.vlines(vlines.start_datetime, 0, vlines.height,
-              color=vlines.color, linewidth=0.5)
+              color=vlines.color, linewidth=0.75)
     data.apply(lambda row: annotate(ax, row, inches_per_xtick, inches_per_ytick), axis=1)
 
     ax.spines['top'].set_visible(False)

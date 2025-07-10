@@ -33,7 +33,9 @@ def main():
     matplotlib.rcParams.update(styles)
 
     defaults = {
+        'color': 'darkgray',
         'linewidth': 22,
+        'markerfmt': mmarkers.MarkerStyle('o').scaled(1.3, 1.3),
     }
 
     base_options = {
@@ -61,7 +63,17 @@ def main():
             'base': 'ship',
             'placement': 'left',
             'vline': False,
+            'color': '#111111',
         },
+        # Level 4 colors from https://hypejunction.github.io/color-wizard/
+        'color1': { 'color': '#ef6c6c' }, # red
+        'color2': { 'color': '#efc16c' }, # yellow
+        'color3': { 'color': '#ef6c9a' }, # pink
+        'color4': { 'color': '#efa06c' }, # orange
+        'color5': { 'color': '#6c82ef' }, #indigo
+        'color6': { 'color': '#6cb2ef' }, # blue
+        'color7': { 'color': '#6cddef' }, # cyan
+        'color8': { 'color': '#6cefc8' }, # teal
     }
 
     timeline_generator.get_timeline(df, filename=args.out_file, granularity='years', interval=5, dateformat='%Y', minor_interval=1, rotate_labels=False, capstyle='butt', inches_per_ytick=1, default_style=defaults, styles=base_options, hide_partially_visible_labels=True)
